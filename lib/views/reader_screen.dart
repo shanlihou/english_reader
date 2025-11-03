@@ -212,34 +212,29 @@ class _ReaderScreenState extends State<ReaderScreen> {
               );
             },
           ),
-          // 左半边翻页手势区域（避免与文本点击冲突）
+          // 左边缘翻页手势区域（只覆盖屏幕最左边10%的区域）
           Positioned.fill(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return GestureDetector(
-                  onTap: () {
-                    // 只有当没有显示抽屉时才允许翻页
-                    if (!_showTranslationDrawer) {
-                      _previousPage();
-                    }
-                  },
-                );
+            left: 0,
+            right: MediaQuery.of(context).size.width * 0.9,
+            child: GestureDetector(
+              onTap: () {
+                // 只有当没有显示抽屉时才允许翻页
+                if (!_showTranslationDrawer) {
+                  _previousPage();
+                }
               },
             ),
           ),
-          // 右半边翻页手势区域（避免与文本点击冲突）
+          // 右边缘翻页手势区域（只覆盖屏幕最右边10%的区域）
           Positioned.fill(
-            left: MediaQuery.of(context).size.width / 2,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return GestureDetector(
-                  onTap: () {
-                    // 只有当没有显示抽屉时才允许翻页
-                    if (!_showTranslationDrawer) {
-                      _nextPage();
-                    }
-                  },
-                );
+            left: MediaQuery.of(context).size.width * 0.9,
+            right: 0,
+            child: GestureDetector(
+              onTap: () {
+                // 只有当没有显示抽屉时才允许翻页
+                if (!_showTranslationDrawer) {
+                  _nextPage();
+                }
               },
             ),
           ),
