@@ -35,14 +35,18 @@ jobs:
 
       - name: Build APK (Debug)
         run: |
+          # 将版本号转换为Android构建号 (整数格式)
+          BUILD_NUMBER=$(echo "${{ steps.tag.outputs.version }}" | tr -d '.')
           flutter build apk --debug \
-            --build-number=${{ steps.tag.outputs.version }} \
+            --build-number=$BUILD_NUMBER \
             --build-name=${{ steps.tag.outputs.version }}
 
       - name: Build APK (Release)
         run: |
+          # 将版本号转换为Android构建号 (整数格式)
+          BUILD_NUMBER=$(echo "${{ steps.tag.outputs.version }}" | tr -d '.')
           flutter build apk --release \
-            --build-number=${{ steps.tag.outputs.version }} \
+            --build-number=$BUILD_NUMBER \
             --build-name=${{ steps.tag.outputs.version }}
 
       - name: Upload Debug APK
