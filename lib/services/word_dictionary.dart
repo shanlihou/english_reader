@@ -1,14 +1,4 @@
-class WordEntry {
-  final String word;
-  final String translation;
-  final String partOfSpeech;
-
-  WordEntry({
-    required this.word,
-    required this.translation,
-    required this.partOfSpeech,
-  });
-}
+import '../models/word_entry.dart';
 
 class WordDictionary {
   static final Map<String, WordEntry> _dictionary = {

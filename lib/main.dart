@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import 'reader_screen.dart';
+import 'views/reader_screen.dart';
 
 void main() {
   runApp(const MyApp());

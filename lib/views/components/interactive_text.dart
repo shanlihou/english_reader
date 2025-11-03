@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'word_dictionary.dart';
+import '../../services/word_dictionary.dart';
 
 class InteractiveText extends StatefulWidget {
   final String text;

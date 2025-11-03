@@ -42,13 +42,18 @@
 
 ```
 lib/
-├── main.dart                  # 应用入口和主页面
-├── reader_screen.dart         # 阅读器界面
-├── text_pagination.dart       # 文本分页逻辑
-├── interactive_text.dart      # 可点击文本渲染器
-├── translation_drawer.dart    # 抽屉式翻译信息栏
-├── translation_service.dart   # 在线翻译服务（MyMemory API）
-└── word_dictionary.dart       # 本地词典数据
+├── main.dart                          # 应用入口和主页面
+├── models/                            # 数据模型
+│   └── word_entry.dart                # 单词条目模型
+├── views/                             # 视图层
+│   ├── reader_screen.dart             # 阅读器界面
+│   └── components/                    # 可复用组件
+│       ├── interactive_text.dart      # 可点击文本渲染器
+│       └── translation_drawer.dart    # 抽屉式翻译信息栏
+└── services/                          # 业务逻辑层
+    ├── text_pagination.dart           # 文本分页逻辑
+    ├── translation_service.dart       # 在线翻译服务（MyMemory API）
+    └── word_dictionary.dart           # 本地词典数据
 ```
 
 ## 快速开始 🚀

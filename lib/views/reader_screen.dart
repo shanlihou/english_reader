@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'text_pagination.dart';
-import 'interactive_text.dart';
-import 'translation_drawer.dart';
-import 'word_dictionary.dart';
-import 'translation_service.dart';
+import '../services/text_pagination.dart';
+import 'components/interactive_text.dart';
+import 'components/translation_drawer.dart';
+import '../services/word_dictionary.dart';
+import '../services/translation_service.dart';
+import '../models/word_entry.dart';
 
 class ReaderScreen extends StatefulWidget {
   final String fileName;
