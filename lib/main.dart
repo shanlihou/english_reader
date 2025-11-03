@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import 'package:permission_handler/permission_handler.dart';
 import 'views/reader_screen.dart';
 import 'views/history_screen.dart';
 import 'views/wordbook_screen.dart';
@@ -71,19 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _pickTextFile() async {
     try {
-      // 检查存储权限 (Android 6+)
-      if (Platform.isAndroid) {
-        // 检查当前Android版本
-        if (Theme.of(context).platform == TargetPlatform.android) {
-          // 对于Android 10+，需要请求权限
-          bool granted = await _requestStoragePermission();
-          if (!granted) {
-            _showPermissionDeniedDialog();
-            return;
-          }
-        }
-      }
-
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['txt'],
@@ -379,65 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  /// 请求存储权限
-  Future<bool> _requestStoragePermission() async {
-    // 检查当前权限状态
-    var status = await Permission.storage.status;
-    if (status.isGranted) {
-      return true; // 已授权
-    }
-
-    // 请求权限
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.storage,
-      Permission.manageExternalStorage, // Android 11+ 特殊权限
-    ].request();
-
-    // 检查授权结果
-    if (statuses[Permission.storage] == PermissionStatus.granted) {
-      return true;
-    }
-
-    // 检查特殊权限 (Android 11+)
-    if (await Permission.manageExternalStorage.status.isGranted) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /// 显示权限被拒绝的对话框
-  void _showPermissionDeniedDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('权限被拒绝'),
-          content: const Text(
-            '需要存储权限才能选择和读取TXT文件。\n\n'
-            '请在设置中手动授予存储权限，或重新安装应用并授权。',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('知道了'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // 引导用户打开应用设置
-                openAppSettings();
-              },
-              child: const Text('去设置'),
-            ),
-          ],
-        );
-      },
+      ),
     );
   }
 }
