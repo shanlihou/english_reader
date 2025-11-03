@@ -58,9 +58,9 @@ class _InteractiveTextState extends State<InteractiveText> {
 
       // 添加匹配的单词
       String word = widget.text.substring(match.start, match.end);
-      bool isInDictionary = WordDictionary.hasTranslation(word);
+      bool isEnglishWord = WordDictionary.isEnglishWord(word);
 
-      if (isInDictionary) {
+      if (isEnglishWord) {
         spans.add(
           WidgetSpan(
             child: GestureDetector(

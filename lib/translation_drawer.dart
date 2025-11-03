@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
-import 'word_dictionary.dart';
 
 class TranslationDrawer extends StatelessWidget {
   final bool isVisible;
   final String word;
   final VoidCallback onHide;
+  final bool isTranslating;
+  final String? translation;
+  final String? source;
 
   const TranslationDrawer({
     super.key,
     required this.isVisible,
     required this.word,
     required this.onHide,
+    this.isTranslating = false,
+    this.translation,
+    this.source,
   });
 
   @override
   Widget build(BuildContext context) {
-    WordEntry? wordEntry = WordDictionary.getTranslation(word);
-
-    if (!isVisible || wordEntry == null) {
+    if (!isVisible) {
       return const SizedBox.shrink();
     }
 
@@ -62,14 +65,14 @@ class TranslationDrawer extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Row(
                   children: [
-                    // 单词和词性
+                    // 单词信息
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            wordEntry.word,
+                            word,
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -77,28 +80,33 @@ class TranslationDrawer extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade100,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              wordEntry.partOfSpeech,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.blue.shade700,
-                                fontWeight: FontWeight.w500,
+                          if (!isTranslating && source != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: source == '词典'
+                                    ? Colors.blue.shade100
+                                    : Colors.green.shade100,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                source!,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: source == '词典'
+                                      ? Colors.blue.shade700
+                                      : Colors.green.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),
-                    // 翻译
+                    // 翻译内容
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,14 +121,22 @@ class TranslationDrawer extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            wordEntry.translation,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
+                          isTranslating
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  translation ?? '',
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                ),
                         ],
                       ),
                     ),

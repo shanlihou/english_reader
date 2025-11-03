@@ -3,6 +3,7 @@ import 'text_pagination.dart';
 import 'interactive_text.dart';
 import 'translation_drawer.dart';
 import 'word_dictionary.dart';
+import 'translation_service.dart';
 
 class ReaderScreen extends StatefulWidget {
   final String fileName;
@@ -26,6 +27,9 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   String? _selectedWord;
   bool _showTranslationDrawer = false;
+  bool _isTranslating = false;
+  String? _onlineTranslation;
+  String? _translationSource;
 
   @override
   void initState() {
@@ -67,13 +71,37 @@ class _ReaderScreenState extends State<ReaderScreen> {
     });
   }
 
-  void _onWordTap(String word) {
+  void _onWordTap(String word) async {
+    if (word.isEmpty) return;
+
+    setState(() {
+      _isTranslating = true;
+      _selectedWord = word;
+      _showTranslationDrawer = true;
+      _onlineTranslation = null;
+      _translationSource = null;
+    });
+
+    // 首先检查本地词典
     WordEntry? wordEntry = WordDictionary.getTranslation(word);
+
     if (wordEntry != null) {
+      // 使用本地词典
       setState(() {
-        _selectedWord = word;
-        _showTranslationDrawer = true;
+        _isTranslating = false;
+        _onlineTranslation = wordEntry.translation;
+        _translationSource = '词典';
       });
+    } else {
+      // 使用在线翻译
+      final translation = await TranslationService.translateWord(word);
+      if (mounted) {
+        setState(() {
+          _isTranslating = false;
+          _onlineTranslation = translation?.translation ?? '翻译失败';
+          _translationSource = '在线翻译';
+        });
+      }
     }
   }
 
@@ -81,6 +109,8 @@ class _ReaderScreenState extends State<ReaderScreen> {
     setState(() {
       _showTranslationDrawer = false;
       _selectedWord = null;
+      _onlineTranslation = null;
+      _translationSource = null;
     });
   }
 
@@ -218,6 +248,9 @@ class _ReaderScreenState extends State<ReaderScreen> {
               isVisible: _showTranslationDrawer,
               word: _selectedWord!,
               onHide: _hideTranslationDrawer,
+              isTranslating: _isTranslating,
+              translation: _onlineTranslation,
+              source: _translationSource,
             ),
         ],
       ),

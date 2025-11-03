@@ -354,4 +354,10 @@ class WordDictionary {
   static bool hasTranslation(String word) {
     return _dictionary.containsKey(word.toLowerCase());
   }
+
+  /// 检查是否是英文单词（所有英文单词都可点击）
+  static bool isEnglishWord(String word) {
+    if (word.isEmpty) return false;
+    return RegExp(r'^[a-zA-Z]+$').hasMatch(word);
+  }
 }
