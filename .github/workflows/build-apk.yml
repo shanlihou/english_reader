@@ -49,17 +49,24 @@ jobs:
             --build-number=$BUILD_NUMBER \
             --build-name=${{ steps.tag.outputs.version }}
 
+      - name: Prepare APK files
+        run: |
+          # 复制APK文件到工作目录，使用正确的命名
+          cp build/app/outputs/flutter-apk/app-debug.apk ./app-debug-v${{ steps.tag.outputs.version }}.apk
+          cp build/app/outputs/flutter-apk/app-release.apk ./app-release-v${{ steps.tag.outputs.version }}.apk
+          ls -lah *.apk
+
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-v${{ steps.tag.outputs.version }}
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          path: app-debug-v${{ steps.tag.outputs.version }}.apk
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release-v${{ steps.tag.outputs.version }}
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: app-release-v${{ steps.tag.outputs.version }}.apk
 
       - name: Create Release
         if: success()
@@ -70,10 +77,12 @@ jobs:
           body: |
             ## 🎉 英语阅读器 v${{ steps.tag.outputs.version }}
 
-            ### 📱 下载链接
+            ### 📱 直接下载
 
-            - **调试版 (Debug APK)**：[app-debug.apk](./app-debug-v${{ steps.tag.outputs.version }}.zip)
-            - **正式版 (Release APK)**：[app-release.apk](./app-release-v${{ steps.tag.outputs.version }}.zip)
+            - **调试版 (Debug APK)**：[app-debug.apk](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/app-debug-v${{ steps.tag.outputs.version }}.apk)
+            - **正式版 (Release APK)**：[app-release.apk](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/app-release-v${{ steps.tag.outputs.version }}.apk)
+
+            > 💡 或者访问 [Releases页面](https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}) 查看所有文件
 
             ### ✨ 功能特性
 
@@ -95,7 +104,7 @@ jobs:
             ---
             由 GitHub Actions 自动构建 🚀
           files: |
-            build/app/outputs/flutter-apk/app-debug.apk
-            build/app/outputs/flutter-apk/app-release.apk
+            app-debug-v${{ steps.tag.outputs.version }}.apk
+            app-release-v${{ steps.tag.outputs.version }}.apk
           draft: false
           prerelease: false
