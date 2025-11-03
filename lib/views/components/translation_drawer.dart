@@ -102,7 +102,6 @@ class _TranslationDrawerState extends State<TranslationDrawer> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        height: 150,
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -131,18 +130,18 @@ class _TranslationDrawerState extends State<TranslationDrawer> {
               ),
             ),
             // 单词信息
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    // 单词信息
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 单词信息
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
                             widget.word,
                             style: const TextStyle(
                               fontSize: 24,
@@ -225,14 +224,16 @@ class _TranslationDrawerState extends State<TranslationDrawer> {
                                 ),
                               ),
                             ),
+                        const SizedBox(height: 16),
                         ],
                       ),
                     ),
+                    const SizedBox(width: 16),
                     // 翻译内容
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const Text(
                             '中文翻译',
@@ -276,7 +277,6 @@ class _TranslationDrawerState extends State<TranslationDrawer> {
                   ],
                 ),
               ),
-            ),
           ],
         ),
       ),
