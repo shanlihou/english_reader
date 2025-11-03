@@ -90,8 +90,8 @@ jobs:
 
             ---
             由 GitHub Actions 自动构建 🚀
-        files: |
-          build/app/outputs/flutter-apk/app-debug.apk
-          build/app/outputs/flutter-apk/app-release.apk
-        draft: false
-        prerelease: false
+          files: |
+            build/app/outputs/flutter-apk/app-debug.apk
+            build/app/outputs/flutter-apk/app-release.apk
+          draft: false
+          prerelease: false
