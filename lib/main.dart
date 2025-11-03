@@ -34,6 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedFileName;
   String _fileContent = '';
 
+  String _removeExtension(String fileName) {
+    return fileName.replaceAll(RegExp(r'\.[^.]+$'), '');
+  }
+
   Future<void> _pickTextFile() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -46,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
         String content = await file.readAsString();
 
         setState(() {
-          _selectedFileName = result.files.single.name;
+          _selectedFileName = _removeExtension(result.files.single.name);
           _fileContent = content;
         });
 
