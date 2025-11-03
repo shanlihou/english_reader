@@ -137,7 +137,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.fileName),
+        title: Text(widget.fileName.replaceAll(RegExp(r'\.[^.]+$'), '')),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
