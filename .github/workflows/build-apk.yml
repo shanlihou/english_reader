@@ -1,0 +1,97 @@
+name: Build APK
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # 触发条件：推送版本标签，如v1.0.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.8.0'  # 使用项目支持的Flutter版本
+          channel: 'stable'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Get version from tag
+        id: tag
+        run: |
+          echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build APK (Debug)
+        run: |
+          flutter build apk --debug \
+            --build-number=${{ steps.tag.outputs.version }} \
+            --build-name=${{ steps.tag.outputs.version }}
+
+      - name: Build APK (Release)
+        run: |
+          flutter build apk --release \
+            --build-number=${{ steps.tag.outputs.version }} \
+            --build-name=${{ steps.tag.outputs.version }}
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-v${{ steps.tag.outputs.version }}
+          path: build/app/outputs/flutter-apk/app-debug.apk
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-v${{ steps.tag.outputs.version }}
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Create Release
+        if: success()
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## 🎉 英语阅读器 v${{ steps.tag.outputs.version }}
+
+            ### 📱 下载链接
+
+            - **调试版 (Debug APK)**：[app-debug.apk](./app-debug-v${{ steps.tag.outputs.version }}.zip)
+            - **正式版 (Release APK)**：[app-release.apk](./app-release-v${{ steps.tag.outputs.version }}.zip)
+
+            ### ✨ 功能特性
+
+            - 📖 本地文本阅读
+            - 🔍 字体大小调整
+            - 👆 手势翻页
+            - 🌍 在线翻译
+            - 📚 历史记录
+            - ⭐ 单词本
+            - 📊 阅读进度
+            - 🌙 深色/浅色主题
+
+            ### 💡 安装说明
+
+            1. 下载对应版本的APK文件
+            2. 在设备上安装（需要开启"未知来源"权限）
+            3. 开始使用英语阅读器！
+
+            ---
+            由 GitHub Actions 自动构建 🚀
+        files: |
+          build/app/outputs/flutter-apk/app-debug.apk
+          build/app/outputs/flutter-apk/app-release.apk
+        draft: false
+        prerelease: false

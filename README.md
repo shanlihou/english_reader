@@ -182,6 +182,49 @@ A: 支持 Android、iOS、Windows、macOS 和 Web（Chrome、Edge、Safari）。
 
 欢迎提交 Issue 和 Pull Request！
 
+## 🚀 自动化构建与部署
+
+### GitHub Actions 自动构建
+
+本项目使用 GitHub Actions 实现自动化构建，每次推送版本标签时自动编译 APK。
+
+#### 使用方法
+
+1. **使用发布脚本（推荐）**
+   ```bash
+   # 运行交互式发布脚本
+   ./release.sh
+   ```
+
+2. **手动发布**
+   ```bash
+   # 1. 提交所有更改
+   git add .
+   git commit -m "feat: 更新功能"
+
+   # 2. 创建版本标签（触发自动构建）
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+#### 构建流程
+
+推送版本标签（如 `v1.0.0`）后，GitHub Actions 将自动：
+- 检出代码
+- 设置 Flutter 环境
+- 获取依赖
+- 构建 Debug APK 和 Release APK
+- 创建 GitHub Release
+- 上传 APK 文件
+
+#### 下载 APK
+
+构建完成后，在 [Releases 页面](https://github.com/USERNAME/english_reader/releases) 下载：
+- **Debug APK**：适用于测试
+- **Release APK**：适用于生产环境
+
+详细文档请参考：[DEPLOYMENT.md](DEPLOYMENT.md)
+
 ## 联系方式 📧
 
 如有问题或建议，请创建 GitHub Issue。

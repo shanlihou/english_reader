@@ -187,13 +187,43 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    _formatDateTime(history.viewedAt),
+                                    _formatDateTime(history.lastViewedAt),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey.shade600,
                                     ),
                                   ),
-                                  const SizedBox(width: 16),
+                                  const SizedBox(width: 12),
+                                  // 点击次数
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.purple.shade100,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.touch_app,
+                                          size: 12,
+                                          color: Colors.purple.shade700,
+                                        ),
+                                        const SizedBox(width: 2),
+                                        Text(
+                                          '${history.clickCount}次',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.purple.shade700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 6,

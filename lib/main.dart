@@ -4,9 +4,18 @@ import 'dart:io';
 import 'views/reader_screen.dart';
 import 'views/history_screen.dart';
 import 'views/wordbook_screen.dart';
+import 'services/database_service.dart';
+import 'services/theme_provider.dart';
+import 'models/reading_progress.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -14,13 +23,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'English Reader',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const HomeScreen(),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'English Reader',
+          theme: themeProvider.currentTheme,
+          home: const HomeScreen(),
+        );
+      },
     );
   }
 }
@@ -35,6 +45,24 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String? _selectedFileName;
   String _fileContent = '';
+  List<ReadingProgress> _recentBooks = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecentBooks();
+  }
+
+  Future<void> _loadRecentBooks() async {
+    final books = await DatabaseService().getRecentReadingProgress(limit: 5);
+    if (mounted) {
+      setState(() {
+        _recentBooks = books;
+        _isLoading = false;
+      });
+    }
+  }
 
   String _removeExtension(String fileName) {
     return fileName.replaceAll(RegExp(r'\.[^.]+$'), '');
@@ -64,13 +92,46 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context) => ReaderScreen(
                 fileName: _selectedFileName!,
                 content: _fileContent,
+                filePath: result.files.single.path!,
               ),
             ),
-          );
+          ).then((_) {
+            // 返回时刷新最近阅读列表
+            _loadRecentBooks();
+          });
         }
       }
     } catch (e) {
       _showErrorDialog('选择文件时出错: $e');
+    }
+  }
+
+  Future<void> _openRecentBook(ReadingProgress progress) async {
+    try {
+      File file = File(progress.filePath);
+      if (await file.exists()) {
+        String content = await file.readAsString();
+
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ReaderScreen(
+                fileName: progress.fileName,
+                content: content,
+                filePath: progress.filePath,
+              ),
+            ),
+          ).then((_) {
+            // 返回时刷新最近阅读列表
+            _loadRecentBooks();
+          });
+        }
+      } else {
+        _showErrorDialog('文件不存在: ${progress.filePath}');
+      }
+    } catch (e) {
+      _showErrorDialog('打开文件时出错: $e');
     }
   }
 
@@ -93,10 +154,31 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('English Reader'), centerTitle: true),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      appBar: AppBar(
+        title: const Text('English Reader'),
+        centerTitle: true,
+        actions: [
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return IconButton(
+                icon: Icon(
+                  themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  themeProvider.toggleTheme();
+                },
+                tooltip: themeProvider.isDarkMode ? '切换到浅色模式' : '切换到深色模式',
+              );
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.book, size: 120, color: Colors.blue),
             const SizedBox(height: 32),
@@ -116,6 +198,98 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            // 最近阅读列表
+            if (_isLoading)
+              const CircularProgressIndicator()
+            else if (_recentBooks.isNotEmpty) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '最近阅读',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _recentBooks.length,
+                      separatorBuilder: (context, index) => const Divider(height: 8),
+                      itemBuilder: (context, index) {
+                        final book = _recentBooks[index];
+                        return InkWell(
+                          onTap: () => _openRecentBook(book),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.menu_book,
+                                    color: Colors.blue.shade700,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        book.fileName,
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '第 ${book.currentPage + 1} 页 / 共 ${book.totalPages} 页 '
+                                        '(${book.progress * 100.toInt()}%)',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_right,
+                                  color: Colors.grey.shade400,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             // 历史记录按钮
             ElevatedButton.icon(
@@ -190,6 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ],
         ),
+      ),
       ),
     );
   }

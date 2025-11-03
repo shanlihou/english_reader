@@ -7,15 +7,18 @@ import '../services/translation_service.dart';
 import '../services/database_service.dart';
 import '../models/word_entry.dart';
 import '../models/word_history.dart';
+import '../models/reading_progress.dart';
 
 class ReaderScreen extends StatefulWidget {
   final String fileName;
   final String content;
+  final String? filePath;
 
   const ReaderScreen({
     super.key,
     required this.fileName,
     required this.content,
+    this.filePath,
   });
 
   @override
@@ -41,7 +44,21 @@ class _ReaderScreenState extends State<ReaderScreen> {
     _pages = []; // 初始为空列表
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _calculatePagination();
+      _restoreReadingProgress();
     });
+  }
+
+  Future<void> _restoreReadingProgress() async {
+    if (widget.filePath == null) return;
+
+    final progress = await DatabaseService().getReadingProgressByPath(widget.filePath!);
+    if (progress != null && progress.currentPage < _pages.length) {
+      setState(() {
+        _currentPageIndex = progress.currentPage;
+      });
+      // 跳转到上次阅读的页面
+      _pageController.jumpToPage(progress.currentPage);
+    }
   }
 
   void _calculatePagination() {
@@ -113,7 +130,8 @@ class _ReaderScreenState extends State<ReaderScreen> {
       translation: translation,
       partOfSpeech: partOfSpeech,
       source: source,
-      viewedAt: DateTime.now(),
+      clickCount: 1, // 点击次数会在数据库服务中自动更新
+      lastViewedAt: DateTime.now(),
     );
     DatabaseService().addToHistory(history);
 
@@ -217,12 +235,25 @@ class _ReaderScreenState extends State<ReaderScreen> {
           PageView.builder(
             controller: _pageController,
             itemCount: _pages.length,
-            onPageChanged: (index) {
+            onPageChanged: (index) async {
               setState(() {
                 _currentPageIndex = index;
                 // 翻页时隐藏抽屉
                 _hideTranslationDrawer();
               });
+
+              // 保存阅读进度
+              if (widget.filePath != null && _pages.isNotEmpty) {
+                final progress = ReadingProgress(
+                  fileName: widget.fileName,
+                  filePath: widget.filePath!,
+                  currentPage: index,
+                  totalPages: _pages.length,
+                  progress: (index + 1) / _pages.length,
+                  lastReadAt: DateTime.now(),
+                );
+                await DatabaseService().saveReadingProgress(progress);
+              }
             },
             itemBuilder: (context, index) {
               return Container(

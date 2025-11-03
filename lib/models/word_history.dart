@@ -4,7 +4,8 @@ class WordHistory {
   final String translation;
   final String? partOfSpeech;
   final String source; // 词典或在线翻译
-  final DateTime viewedAt;
+  final int clickCount; // 点击次数
+  final DateTime lastViewedAt; // 最后点击时间
 
   WordHistory({
     this.id,
@@ -12,7 +13,8 @@ class WordHistory {
     required this.translation,
     this.partOfSpeech,
     required this.source,
-    required this.viewedAt,
+    required this.clickCount,
+    required this.lastViewedAt,
   });
 
   Map<String, dynamic> toJson() {
@@ -22,7 +24,8 @@ class WordHistory {
       'translation': translation,
       'partOfSpeech': partOfSpeech,
       'source': source,
-      'viewedAt': viewedAt.toIso8601String(),
+      'clickCount': clickCount,
+      'lastViewedAt': lastViewedAt.toIso8601String(),
     };
   }
 
@@ -33,7 +36,8 @@ class WordHistory {
       translation: json['translation'],
       partOfSpeech: json['partOfSpeech'],
       source: json['source'],
-      viewedAt: DateTime.parse(json['viewedAt']),
+      clickCount: json['clickCount'] ?? 1,
+      lastViewedAt: DateTime.parse(json['lastViewedAt']),
     );
   }
 }
