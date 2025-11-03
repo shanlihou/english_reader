@@ -4,7 +4,9 @@ import 'components/interactive_text.dart';
 import 'components/translation_drawer.dart';
 import '../services/word_dictionary.dart';
 import '../services/translation_service.dart';
+import '../services/database_service.dart';
 import '../models/word_entry.dart';
+import '../models/word_history.dart';
 
 class ReaderScreen extends StatefulWidget {
   final String fileName;
@@ -27,6 +29,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
   final PageController _pageController = PageController();
 
   String? _selectedWord;
+  String? _selectedPartOfSpeech;
   bool _showTranslationDrawer = false;
   bool _isTranslating = false;
   String? _onlineTranslation;
@@ -83,26 +86,45 @@ class _ReaderScreenState extends State<ReaderScreen> {
       _translationSource = null;
     });
 
+    String translation = '';
+    String source = '';
+    String? partOfSpeech;
+
     // 首先检查本地词典
     WordEntry? wordEntry = WordDictionary.getTranslation(word);
 
     if (wordEntry != null) {
       // 使用本地词典
-      setState(() {
-        _isTranslating = false;
-        _onlineTranslation = wordEntry.translation;
-        _translationSource = '词典';
-      });
+      translation = wordEntry.translation;
+      source = '词典';
+      partOfSpeech = wordEntry.partOfSpeech;
     } else {
       // 使用在线翻译
-      final translation = await TranslationService.translateWord(word);
+      final translationResult = await TranslationService.translateWord(word);
       if (mounted) {
-        setState(() {
-          _isTranslating = false;
-          _onlineTranslation = translation?.translation ?? '翻译失败';
-          _translationSource = '在线翻译';
-        });
+        translation = translationResult?.translation ?? '翻译失败';
+        source = '在线翻译';
       }
+    }
+
+    // 保存到历史记录（即使翻译失败也保存）
+    final history = WordHistory(
+      word: word,
+      translation: translation,
+      partOfSpeech: partOfSpeech,
+      source: source,
+      viewedAt: DateTime.now(),
+    );
+    DatabaseService().addToHistory(history);
+
+    // 更新UI
+    if (mounted) {
+      setState(() {
+        _isTranslating = false;
+        _onlineTranslation = translation;
+        _translationSource = source;
+        _selectedPartOfSpeech = partOfSpeech;
+      });
     }
   }
 
@@ -110,6 +132,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
     setState(() {
       _showTranslationDrawer = false;
       _selectedWord = null;
+      _selectedPartOfSpeech = null;
       _onlineTranslation = null;
       _translationSource = null;
     });
@@ -149,8 +172,9 @@ class _ReaderScreenState extends State<ReaderScreen> {
                   content: const Text(
                     '点击文本中的蓝色下划线单词查看翻译。\n\n'
                     '翻页操作：\n'
-                    '• 点击屏幕左侧：上一页\n'
-                    '• 点击屏幕右侧：下一页\n\n'
+                    '• 左滑：上一页\n'
+                    '• 右滑：下一页\n'
+                    '• 底部导航栏按钮：上一页/下一页\n\n'
                     '注意：点击单词时会显示翻译抽屉，此时无法翻页。',
                   ),
                   actions: [
@@ -189,6 +213,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
       ),
       body: Stack(
         children: [
+          // 使用PageView的原生滑动手势进行翻页
           PageView.builder(
             controller: _pageController,
             itemCount: _pages.length,
@@ -212,32 +237,6 @@ class _ReaderScreenState extends State<ReaderScreen> {
               );
             },
           ),
-          // 左边缘翻页手势区域（只覆盖屏幕最左边10%的区域）
-          Positioned.fill(
-            left: 0,
-            right: MediaQuery.of(context).size.width * 0.9,
-            child: GestureDetector(
-              onTap: () {
-                // 只有当没有显示抽屉时才允许翻页
-                if (!_showTranslationDrawer) {
-                  _previousPage();
-                }
-              },
-            ),
-          ),
-          // 右边缘翻页手势区域（只覆盖屏幕最右边10%的区域）
-          Positioned.fill(
-            left: MediaQuery.of(context).size.width * 0.9,
-            right: 0,
-            child: GestureDetector(
-              onTap: () {
-                // 只有当没有显示抽屉时才允许翻页
-                if (!_showTranslationDrawer) {
-                  _nextPage();
-                }
-              },
-            ),
-          ),
           // 翻译抽屉
           if (_showTranslationDrawer && _selectedWord != null)
             TranslationDrawer(
@@ -247,6 +246,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
               isTranslating: _isTranslating,
               translation: _onlineTranslation,
               source: _translationSource,
+              partOfSpeech: _selectedPartOfSpeech,
             ),
         ],
       ),

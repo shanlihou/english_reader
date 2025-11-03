@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'views/reader_screen.dart';
+import 'views/history_screen.dart';
+import 'views/wordbook_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -114,13 +116,57 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            // 历史记录按钮
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HistoryScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.history),
+              label: const Text('历史记录', style: TextStyle(fontSize: 16)),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 12,
+                ),
+                backgroundColor: Colors.green.shade50,
+                foregroundColor: Colors.green.shade700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            // 单词本按钮
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WordBookScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.bookmark),
+              label: const Text('我的单词本', style: TextStyle(fontSize: 16)),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 12,
+                ),
+                backgroundColor: Colors.orange.shade50,
+                foregroundColor: Colors.orange.shade700,
+              ),
+            ),
+            const SizedBox(height: 32),
             const Text(
               '支持 TXT 格式文件',
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
             if (_selectedFileName != null) ...[
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
