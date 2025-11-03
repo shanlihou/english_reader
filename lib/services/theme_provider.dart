@@ -60,7 +60,7 @@ class ThemeProvider extends ChangeNotifier {
         centerTitle: true,
       ),
       cardColor: Colors.white,
-      cardTheme: const CardThemeData(
+      cardTheme: const CardTheme(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -111,7 +111,7 @@ class ThemeProvider extends ChangeNotifier {
         centerTitle: true,
       ),
       cardColor: const Color(0xFF1E1E1E),
-      cardTheme: const CardThemeData(
+      cardTheme: const CardTheme(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12)),
