@@ -1,5 +1,25 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 网络权限 (翻译API需要) -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- 存储权限 (用于选择TXT文件) -->
+    <!-- Android 6-9 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+
+    <!-- Android 13+ (分区存储) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+    <!-- Android 11+ (特殊权限，用于访问所有文件) -->
+    <!-- 注意：需要用户手动授权 -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" android:minSdkVersion="30" />
+
+    <!-- 允许访问下载文件夹 -->
+    <uses-permission android:name="android.permission.READ_DOWNLOADS" android:minSdkVersion="30" />
+
+    <!-- 外部存储写入权限 (用于缓存) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <application
         android:label="english_reader"
         android:name="${applicationName}"
