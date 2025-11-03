@@ -22,7 +22,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.8.0'  # 使用项目支持的Flutter版本
+          flutter-version: '3.24.0'  # 使用最新的稳定版本
           channel: 'stable'
 
       - name: Get dependencies
