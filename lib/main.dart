@@ -118,6 +118,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _openRecentBook(ReadingProgress progress) async {
     try {
+      // 检查存储权限 (Android 6+)
+      if (Platform.isAndroid) {
+        bool granted = await _requestStoragePermission();
+        if (!granted) {
+          _showPermissionDeniedDialog();
+          return;
+        }
+      }
+
       File file = File(progress.filePath);
       if (await file.exists()) {
         String content = await file.readAsString();
