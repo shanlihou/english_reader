@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import '../models/word_history.dart';
@@ -19,9 +20,11 @@ class DatabaseService {
   }
 
   Future<Database> _initDatabase() async {
-    // 初始化数据库工厂（针对Web和桌面平台）
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
+    // 只在桌面和Web平台初始化FFI
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
 
     String path = join(await getDatabasesPath(), 'english_reader.db');
 

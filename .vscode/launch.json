@@ -25,14 +25,14 @@
         {
             "name": "Build Android APK (Debug)",
             "type": "dart",
-            "request": "custom",
-            "preLaunchTask": "Build Android APK (Debug)"
+            "preLaunchTask": "Build Android APK (Debug)",
+            "args": ["--device-id", "01234567890123456789012345678901"]
         },
         {
             "name": "Build Android APK (Release)",
             "type": "dart",
-            "request": "custom",
-            "preLaunchTask": "Build Android APK (Release)"
+            "preLaunchTask": "Build Android APK (Release)",
+            "noDebug": true
         }
     ]
 }
